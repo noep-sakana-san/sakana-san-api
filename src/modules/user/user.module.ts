@@ -7,16 +7,16 @@ import {
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../auth/auth.middleware';
 import { AuthModule } from '../auth/auth.module';
-import { MediaModule } from '../media/media.module';
 import { UserController } from './user.controller';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { PlaceModule } from '../place/place.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     forwardRef(() => AuthModule),
-    forwardRef(() => MediaModule),
+    forwardRef(() => PlaceModule),
   ],
   providers: [UserService],
   controllers: [UserController],

@@ -1,4 +1,3 @@
-import { errorMessage } from '@/errors';
 import { AuthLoginApi, RegisterApi } from '@/types';
 import { userValidation } from '@/validations';
 import {
@@ -33,23 +32,6 @@ export class AuthController {
       await userValidation.login.validate(body, {
         abortEarly: false,
       });
-      return await this.authService.login(body);
-    } catch (e) {
-      throw new BadRequestException(e);
-    }
-  }
-
-  @Post('login/admin')
-  @UseGuards(ApiKeyGuard)
-  @HttpCode(200)
-  async loginAdmin(@Body() body: AuthLoginApi) {
-    try {
-      await userValidation.login.validate(body, {
-        abortEarly: false,
-      });
-      const user = await this.userService.getOneByEmail(body.email);
-      if (!user.isAdmin)
-        throw new BadRequestException(errorMessage.api('user').NOT_ADMIN);
       return await this.authService.login(body);
     } catch (e) {
       throw new BadRequestException(e);

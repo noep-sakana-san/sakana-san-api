@@ -6,7 +6,7 @@ help:
 
 #-- PROJECT
 start:  ## Start project
-	yarn start:dev
+	yarn watch
 
 #-- DATABASE
 db.create: ## Create database
@@ -15,11 +15,10 @@ db.create: ## Create database
 	@echo "Sleeping for 5 seconds..."
 	@sleep 5
 	@echo "Running make migration..."
-	@make migration
-
+	@yarn migrate
 
 db.delete: ## Delete database
-	docker compose down && docker volume rm -f iggy-api_db && rm -rf ./public/files
+	docker compose down && docker volume rm -f iggy-api_db && rm -rf ./public/files && rm -rf ./src/migrations/
 
 db.start: ## Start database
 	docker start iggy-db
@@ -35,7 +34,7 @@ db.clean: ## Clean database
 	@echo "Sleeping for 5 seconds..."
 	@sleep 5
 	@echo "Running make migration..."
-	@yarn migrate:run
+	@yarn migrate
 	@echo "Start server..."
 	@make start
 

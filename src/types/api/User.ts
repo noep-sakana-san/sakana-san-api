@@ -1,6 +1,4 @@
 export interface UpdateUserApi {
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  profilePicture?: string;
+  username?: string;
+  placeId?: string;
 }

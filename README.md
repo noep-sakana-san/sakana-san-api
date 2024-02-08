@@ -1,4 +1,4 @@
-# api-template
+# api-sakana-san
 
 Template pour créer une API REST avec Node.js, TypeORM et Postgres.
 
@@ -115,8 +115,7 @@ export interface UpdateAddressApi {
 5.  Dans le fichier `@/types/dto/Address.ts` ajouter les propriétés suivantes :
 
 ```typescript
-export interface AddressDto {
-  id: string;
+export interface AddressDto extends BaseDto {
   street: string;
   city: string;
   zipCode: string;
@@ -124,58 +123,42 @@ export interface AddressDto {
 }
 ```
 
-6. Le fichier `@/errors/errors.ts` permet de gérer les erreurs pour le front, ajouter les propriétés suivantes :
-
-```typescript
-export enum AddressError {
-  ADDRESS_NOT_FOUND = 'ADDRESS_NOT_FOUND',
-  STREET_REQUIRED = 'STREET_REQUIRED',
-  CITY_REQUIRED = 'CITY_REQUIRED',
-  COUNTRY_REQUIRED = 'COUNTRY_REQUIRED',
-  ZIPCODE_REQUIRED = 'ZIPCODE_REQUIRED',
-  STREET_NOT_STRING = 'STREET_NOT_STRING',
-  CITY_NOT_STRING = 'CITY_NOT_STRING',
-  COUNTRY_NOT_STRING = 'COUNTRY_NOT_STRING',
-  ZIPCODE_NOT_STRING = 'ZIPCODE_NOT_STRING',
-}
-```
-
 1. Le fichier `@/validations/address.ts` permet de gérer toutes les validations, ajouter les propriétés suivantes :
 
 ```typescript
-import { AddressError } from '@/errors/errors';
-import { CreateAddressApi, UpdateAddressApi } from '@/types';
+import { errorMessage } from '@/errors';
+import { CreateAddressApi, UpdateAddressApi } from 'src/types';
 import * as yup from 'yup';
 
-const create = yup.object<CreateAddressApi>().shape({
+const create: yup.ObjectSchema<CreateAddressApi> = yup.object({
   street: yup
     .string()
-    .required(AddressError.STREET_REQUIRED)
-    .typeError(AddressError.STREET_NOT_STRING),
+    .required(errorMessage.fields('street').REQUIRED)
+    .typeError(errorMessage.fields('street').NOT_STRING),
   city: yup
     .string()
-    .required(AddressError.CITY_REQUIRED)
-    .typeError(AddressError.CITY_NOT_STRING),
+    .required(errorMessage.fields('city').REQUIRED)
+    .typeError(errorMessage.fields('city').NOT_STRING),
   zipCode: yup
     .string()
-    .required(AddressError.ZIPCODE_REQUIRED)
-    .typeError(AddressError.ZIPCODE_NOT_STRING),
+    .required(errorMessage.fields('zipCode').REQUIRED)
+    .typeError(errorMessage.fields('zipCode').NOT_STRING),
   country: yup
     .string()
-    .required(AddressError.COUNTRY_REQUIRED)
-    .typeError(AddressError.COUNTRY_NOT_STRING),
+    .required(errorMessage.fields('country').REQUIRED)
+    .typeError(errorMessage.fields('country').NOT_STRING),
 });
 
-const update = yup.object<UpdateAddressApi>().shape({
-  street: yup.string().typeError(AddressError.STREET_NOT_STRING),
-  city: yup.string().typeError(AddressError.CITY_NOT_STRING),
-  zipCode: yup.string().typeError(AddressError.ZIPCODE_NOT_STRING),
-  country: yup.string().typeError(AddressError.COUNTRY_NOT_STRING),
+const update: yup.ObjectSchema<UpdateAddressApi> = yup.object({
+  street: yup.string().typeError(errorMessage.fields('street').NOT_STRING),
+  city: yup.string().typeError(errorMessage.fields('city').NOT_STRING),
+  zipCode: yup.string().typeError(errorMessage.fields('zipCode').NOT_STRING),
+  country: yup.string().typeError(errorMessage.fields('country').NOT_STRING),
 });
 
-export const validationAddress = {
-  create: create,
-  update: update,
+export const addressValidation = {
+  create,
+  update,
 };
 ```
 
@@ -184,7 +167,7 @@ export const validationAddress = {
 - Si vous voulez la les routes soient accessibles uniquement aux utilisateurs connectés, ajouter ces imports :
 
 ```typescript
-   imports: [TypeOrmModule.forFeature([Address]), UsersModule, forwardRef(() => AuthModule)],
+   imports: [TypeOrmModule.forFeature([Address]), UserModule, forwardRef(() => AuthModule)],
 ```
 
 et ajouter ce code dans AddressModule :
@@ -210,14 +193,10 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Address } from './address.entity';
-import {
-  AddressDto,
-  CreateAddressApi,
-  UpdateAddressApi,
-} from '@/types';
-import { AddressError, GenericsError } from '@/errors/errors';
-import { validationAddress } from '@/validations';
+import { AddressDto, CreateAddressApi, UpdateAddressApi } from '@/types';
 import { InjectRepository } from '@nestjs/typeorm';
+import { addressValidation } from '@/validations';
+import { errorMessage } from '@/errors';
 
 @Injectable()
 export class AddressService {
@@ -228,7 +207,7 @@ export class AddressService {
 
   async createAddress(address: CreateAddressApi): Promise<AddressDto> {
     try {
-      await validationAddress.create.validate(address);
+      await addressValidation.create.validate(address);
       return await this.addressRepository.save(address);
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -240,7 +219,7 @@ export class AddressService {
     id: string,
   ): Promise<AddressDto> {
     try {
-      await validationAddress.update.validate(address);
+      await addressValidation.update.validate(address);
       await this.addressRepository.update(id, address);
       return await this.getAddress(id);
     } catch (error) {
@@ -252,7 +231,7 @@ export class AddressService {
     try {
       await this.addressRepository.delete(id);
     } catch (error) {
-      throw new BadRequestException(GenericsError.INTERNAL_SERVER_ERROR);
+      throw new BadRequestException(errorMessage.api('address').NOT_FOUND);
     }
   }
 
@@ -264,7 +243,7 @@ export class AddressService {
       });
       return address;
     } catch (error) {
-      throw new NotFoundException(AddressError.ADDRESS_NOT_FOUND);
+      throw new NotFoundException(errorMessage.api('address').NOT_FOUND, _id);
     }
   }
 }

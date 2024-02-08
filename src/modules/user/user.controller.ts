@@ -43,15 +43,8 @@ export class UserController {
     @Body() body: UpdateUserApi,
     @GetCurrentUser() user: User,
   ): Promise<UserDto> {
-    try {
-      await userValidation.update.validate(body, {
-        abortEarly: false,
-      });
-      const userUpdated = await this.service.updateUser(body, user.id);
-      return this.service.formatUser(userUpdated);
-    } catch (e) {
-      throw new BadRequestException(e.errors);
-    }
+    const userUpdated = await this.service.updateUser(body, user.id);
+    return this.service.formatUser(userUpdated);
   }
 
   @Delete('me')

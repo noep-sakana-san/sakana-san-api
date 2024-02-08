@@ -1,11 +1,9 @@
 export interface RegisterApi {
-  email: string;
+  username: string;
   password: string;
-  firstName: string;
-  lastName: string;
 }
 
 export interface AuthLoginApi {
-  email: string;
+  username: string;
   password: string;
 }

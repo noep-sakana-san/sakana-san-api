@@ -1,20 +1,21 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { Place } from '../place/place.entity';
-@Entity()
-export class User extends BaseEntity {
-  @Column()
-  username: string;
 
+@Entity()
+export class Session extends BaseEntity {
   @Column({ nullable: true })
-  password: string;
+  name?: string;
 
   @OneToOne(() => Place, {
-    cascade: true,
-    eager: true,
-    nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
-  place?: Place;
+  place: Place;
+
+  @Column()
+  startDate: Date;
+
+  @Column()
+  endDate: Date;
 }
