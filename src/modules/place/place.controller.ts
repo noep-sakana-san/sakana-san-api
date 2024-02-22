@@ -1,5 +1,11 @@
 import { ApiKeyGuard } from '@/decorators/api-key.decorator';
-import { CreatePlaceApi, UpdatePlaceApi } from '@/types';
+import {
+  ApiSearchResponse,
+  CreatePlaceApi,
+  PlaceDto,
+  SearchParams,
+  UpdatePlaceApi,
+} from '@/types';
 import {
   Body,
   Controller,
@@ -13,8 +19,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { PlaceService } from './place.service';
+import { GetSearchParams } from '@/decorators/get-search-params.decorator';
 
-@Controller('place')
+@Controller('places')
 export class PlaceController {
   constructor(private service: PlaceService) {}
 
@@ -22,8 +29,23 @@ export class PlaceController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async get(@Param() params) {
-    return this.service.formatPlace(await this.service.getPlaceById(params.id));
+  async get(@Param('id') id: string) {
+    return this.service.formatPlace(await this.service.getPlaceById(id));
+  }
+
+  @Get()
+  @HttpCode(200)
+  @UseGuards(ApiKeyGuard)
+  @ApiBearerAuth()
+  async getAll(
+    @GetSearchParams<SearchParams>()
+    searchParams: SearchParams,
+  ): Promise<ApiSearchResponse<PlaceDto>> {
+    const places = await this.service.getAllPlaces(searchParams);
+    return {
+      ...places,
+      items: places.items.map((place) => this.service.formatPlace(place)),
+    };
   }
 
   @Post()
@@ -38,17 +60,15 @@ export class PlaceController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async update(@Body() body: UpdatePlaceApi, @Param() params) {
-    return this.service.formatPlace(
-      await this.service.updatePlace(body, params.id),
-    );
+  async update(@Body() body: UpdatePlaceApi, @Param('id') id: string) {
+    return this.service.formatPlace(await this.service.updatePlace(body, id));
   }
 
   @Delete(':id')
   @HttpCode(204)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  delete(@Param() params) {
-    return this.service.deletePlace(params.id);
+  delete(@Param('id') id: string) {
+    return this.service.deletePlace(id);
   }
 }

@@ -1,6 +1,8 @@
 import { MediaType } from '../../types';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { Tattoo } from '../tattoo/tattoo.entity';
+import { Flash } from '../flash/flash.entity';
 
 @Entity()
 export class Media extends BaseEntity {
@@ -18,4 +20,16 @@ export class Media extends BaseEntity {
 
   @Column()
   size: number;
+
+  @ManyToOne(() => Tattoo, (tattoo) => tattoo.images)
+  @JoinColumn()
+  tattoo: Tattoo;
+
+  @ManyToOne(() => Tattoo, (tattoo) => tattoo.afterImages)
+  @JoinColumn()
+  tattooAfter: Tattoo;
+
+  @ManyToOne(() => Flash, (flash) => flash.images)
+  @JoinColumn()
+  flash: Tattoo;
 }

@@ -5,12 +5,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { Session } from './session.entity';
 import { PlaceService } from '../place/place.service';
-import { CreateSessionApi, UpdateSessionApi } from '@/types/api/Session';
+import {
+  CreateSessionApi,
+  SessionSearchParams,
+  UpdateSessionApi,
+} from '@/types/api/Session';
 import { SessionDto } from '@/types/dto/Session';
 import { sessionValidation } from '@/validations';
+import { ApiSearchResponse } from '@/types';
+import { searchByString } from '@/utils/search';
+import { Place } from '../place/place.entity';
 
 @Injectable()
 export class SessionService {
@@ -30,6 +37,38 @@ export class SessionService {
       endDate: session.endDate,
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
+      isVisible: session.isVisible,
+    };
+  }
+
+  searchCondition(
+    searchParams?: SessionSearchParams,
+  ): FindManyOptions<Session> {
+    const relations = ['place', 'place.address'];
+
+    if (!searchParams)
+      return {
+        relations,
+      };
+
+    const order = {
+      [searchParams.orderBy ?? 'createdAt']: searchParams.orderType ?? 'DESC',
+    };
+
+    const where = {
+      name: searchByString(searchParams?.search),
+      isVisible: searchParams.isVisible,
+      place: {
+        id: searchParams.placeId,
+      },
+    };
+
+    return {
+      where,
+      order,
+      relations,
+      skip: searchParams.page * searchParams.pageSize,
+      take: searchParams.pageSize,
     };
   }
 
@@ -37,7 +76,7 @@ export class SessionService {
     try {
       const session = await this.sessionRepository.findOneOrFail({
         where: [{ id: _id }],
-        relations: ['place'],
+        relations: ['place', 'place.address'],
       });
       return session;
     } catch (error) {
@@ -45,37 +84,49 @@ export class SessionService {
     }
   }
 
+  async getAllSessions(
+    searchParams?: SessionSearchParams,
+  ): Promise<ApiSearchResponse<Session>> {
+    try {
+      const [sessions, total] = await this.sessionRepository.findAndCount(
+        this.searchCondition(searchParams),
+      );
+      return {
+        items: sessions,
+        total,
+        page: searchParams.page,
+      };
+    } catch (error) {
+      throw new NotFoundException(errorMessage.api('session').NOT_FOUND);
+    }
+  }
+
   async createSession(session: CreateSessionApi): Promise<Session> {
     try {
       const { placeId, ...rest } = session;
-      await sessionValidation.create.validate(session);
-      let place;
+      await sessionValidation.create.validate(session, {
+        abortEarly: false,
+      });
+      let place: Place;
       if (placeId) {
         place = await this.placeService.getPlaceById(placeId);
-        if (!place) {
-          throw new NotFoundException(
-            errorMessage.api('place').NOT_FOUND,
-            placeId,
-          );
-        }
       }
       const { id } = await this.sessionRepository.save({ ...rest, place });
       return await this.getSessionById(id);
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException(error.message);
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e.errors);
     }
   }
 
   async updateSession(session: UpdateSessionApi, id: string): Promise<Session> {
     try {
-      await sessionValidation.update.validate(session);
-      let place;
+      await sessionValidation.update.validate(session, {
+        abortEarly: false,
+      });
+      let place: Place;
       if (session.placeId) {
         place = await this.placeService.getPlaceById(session.placeId);
-        if (!place) {
-          throw new BadRequestException(errorMessage.api('place').NOT_FOUND);
-        }
       }
 
       await this.sessionRepository.update(id, {
@@ -83,17 +134,13 @@ export class SessionService {
         place,
       });
       return await this.getSessionById(id);
-    } catch (error) {
-      throw new BadRequestException(error.message);
+    } catch (e) {
+      throw new BadRequestException(e.errors);
     }
   }
 
   async deleteSession(id: string): Promise<void> {
     try {
-      const session = await this.getSessionById(id);
-      if (session.place) {
-        await this.placeService.deletePlace(session.place.id);
-      }
       await this.sessionRepository.delete(id);
     } catch (error) {
       console.log(error);

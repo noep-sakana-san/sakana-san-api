@@ -54,7 +54,9 @@ export class AddressService {
 
   async updateAddress(address: UpdateAddressApi, id: string): Promise<Address> {
     try {
-      await addressValidation.update.validate(address);
+      await addressValidation.update.validate(address, {
+        abortEarly: false,
+      });
       await this.addressRepository.update(id, address);
       return await this.getAddressById(id);
     } catch (e) {

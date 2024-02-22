@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { Place } from '../place/place.entity';
 
@@ -7,15 +7,16 @@ export class Session extends BaseEntity {
   @Column({ nullable: true })
   name?: string;
 
-  @OneToOne(() => Place, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Place, (place) => place.sessions)
   @JoinColumn()
   place: Place;
 
-  @Column()
+  @Column({ default: new Date() })
   startDate: Date;
 
-  @Column()
-  endDate: Date;
+  @Column({ nullable: true })
+  endDate?: Date;
+
+  @Column({ default: true })
+  isVisible: boolean;
 }

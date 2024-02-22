@@ -13,6 +13,8 @@ const fields = (item: string) => {
     NOT_NUMBER: `fields.${item}.errors.notNumber`,
     NOT_URL: `fields.${item}.errors.notUrl`,
     NOT_DATE: `fields.${item}.errors.notDate`,
+    NOT_BOOLEAN: `fields.${item}.errors.notBoolean`,
+    NOT_ARRAY: `fields.${item}.errors.notArray`,
   };
 };
 

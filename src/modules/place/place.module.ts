@@ -29,8 +29,12 @@ export class PlaceModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/place', method: RequestMethod.ALL },
-        { path: '/place/*', method: RequestMethod.ALL },
+        { path: '/places', method: RequestMethod.DELETE },
+        { path: '/places', method: RequestMethod.PATCH },
+        { path: '/places', method: RequestMethod.POST },
+        { path: '/places/*', method: RequestMethod.DELETE },
+        { path: '/places/*', method: RequestMethod.PATCH },
+        { path: '/places/*', method: RequestMethod.POST },
       );
   }
 }

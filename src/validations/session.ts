@@ -12,10 +12,11 @@ const create: yup.ObjectSchema<CreateSessionApi> = yup.object({
     .date()
     .required(errorMessage.fields('startDate').REQUIRED)
     .typeError(errorMessage.fields('startDate').NOT_DATE),
-  endDate: yup
-    .date()
-    .required(errorMessage.fields('endDate').REQUIRED)
-    .typeError(errorMessage.fields('endDate').NOT_DATE),
+  endDate: yup.date().typeError(errorMessage.fields('endDate').NOT_DATE),
+  isVisible: yup
+    .boolean()
+    .required(errorMessage.fields('isVisible').REQUIRED)
+    .typeError(errorMessage.fields('isVisible').NOT_BOOLEAN),
 });
 
 const update: yup.ObjectSchema<UpdateSessionApi> = yup.object({
@@ -23,6 +24,9 @@ const update: yup.ObjectSchema<UpdateSessionApi> = yup.object({
   placeId: yup.string().typeError(errorMessage.fields('place').NOT_STRING),
   startDate: yup.date().typeError(errorMessage.fields('startDate').NOT_DATE),
   endDate: yup.date().typeError(errorMessage.fields('endDate').NOT_DATE),
+  isVisible: yup
+    .boolean()
+    .typeError(errorMessage.fields('isVisible').NOT_BOOLEAN),
 });
 
 export const sessionValidation = {

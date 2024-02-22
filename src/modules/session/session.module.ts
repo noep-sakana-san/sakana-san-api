@@ -29,8 +29,12 @@ export class SessionModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/session', method: RequestMethod.ALL },
-        { path: '/session/*', method: RequestMethod.ALL },
+        { path: '/sessions', method: RequestMethod.DELETE },
+        { path: '/sessions', method: RequestMethod.PATCH },
+        { path: '/sessions', method: RequestMethod.POST },
+        { path: '/sessions/*', method: RequestMethod.DELETE },
+        { path: '/sessions/*', method: RequestMethod.PATCH },
+        { path: '/sessions/*', method: RequestMethod.POST },
       );
   }
 }

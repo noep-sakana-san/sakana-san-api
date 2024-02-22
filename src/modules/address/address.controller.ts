@@ -22,10 +22,8 @@ export class AddressController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async get(@Param() params) {
-    return this.service.formatAddress(
-      await this.service.getAddressById(params.id),
-    );
+  async get(@Param('id') id: string) {
+    return this.service.formatAddress(await this.service.getAddressById(id));
   }
 
   @Post()
@@ -40,9 +38,9 @@ export class AddressController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async update(@Body() body: UpdateAddressApi, @Param() params) {
+  async update(@Body() body: UpdateAddressApi, @Param('id') id: string) {
     return this.service.formatAddress(
-      await this.service.updateAddress(body, params.id),
+      await this.service.updateAddress(body, id),
     );
   }
 
@@ -50,7 +48,7 @@ export class AddressController {
   @HttpCode(204)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  delete(@Param() params) {
-    return this.service.deleteAddress(params.id);
+  delete(@Param('id') id: string) {
+    return this.service.deleteAddress(id);
   }
 }

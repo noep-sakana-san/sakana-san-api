@@ -12,9 +12,15 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { SessionService } from './session.service';
-import { CreateSessionApi, UpdateSessionApi } from '@/types/api/Session';
+import {
+  CreateSessionApi,
+  SessionSearchParams,
+  UpdateSessionApi,
+} from '@/types/api/Session';
+import { ApiSearchResponse, SessionDto } from '@/types';
+import { GetSearchParams } from '@/decorators/get-search-params.decorator';
 
-@Controller('session')
+@Controller('sessions')
 export class SessionController {
   constructor(private service: SessionService) {}
 
@@ -22,10 +28,25 @@ export class SessionController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async get(@Param() params) {
-    return this.service.formatSession(
-      await this.service.getSessionById(params.id),
-    );
+  async get(@Param('id') id: string) {
+    return this.service.formatSession(await this.service.getSessionById(id));
+  }
+
+  @Get()
+  @HttpCode(200)
+  @UseGuards(ApiKeyGuard)
+  @ApiBearerAuth()
+  async getAll(
+    @GetSearchParams<SessionSearchParams>()
+    searchParams: SessionSearchParams,
+  ): Promise<ApiSearchResponse<SessionDto>> {
+    const sessions = await this.service.getAllSessions(searchParams);
+    return {
+      ...sessions,
+      items: sessions.items.map((session) =>
+        this.service.formatSession(session),
+      ),
+    };
   }
 
   @Post()
@@ -40,9 +61,9 @@ export class SessionController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async update(@Body() body: UpdateSessionApi, @Param() params) {
+  async update(@Body() body: UpdateSessionApi, @Param('id') id: string) {
     return this.service.formatSession(
-      await this.service.updateSession(body, params.id),
+      await this.service.updateSession(body, id),
     );
   }
 
@@ -50,7 +71,7 @@ export class SessionController {
   @HttpCode(204)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  delete(@Param() params) {
-    return this.service.deleteSession(params.id);
+  delete(@Param('id') id: string) {
+    return this.service.deleteSession(id);
   }
 }

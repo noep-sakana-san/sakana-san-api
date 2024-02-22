@@ -65,7 +65,7 @@ export class FileUploadController {
     return await this.mediaService.createMedia(file);
   }
 
-  @Get('/populate')
+  @Get('populate')
   @HttpCode(200)
   async test() {
     return await this.mediaService.populateMedias();

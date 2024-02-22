@@ -28,8 +28,12 @@ export class MediaModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/media', method: RequestMethod.ALL },
-        { path: '/media/*', method: RequestMethod.ALL },
+        { path: '/media', method: RequestMethod.DELETE },
+        { path: '/media', method: RequestMethod.PATCH },
+        { path: '/media', method: RequestMethod.POST },
+        { path: '/media/*', method: RequestMethod.DELETE },
+        { path: '/media/*', method: RequestMethod.PATCH },
+        { path: '/media/*', method: RequestMethod.POST },
       );
   }
 }

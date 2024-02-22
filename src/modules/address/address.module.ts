@@ -27,8 +27,12 @@ export class AddressModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/address', method: RequestMethod.ALL },
-        { path: '/address/*', method: RequestMethod.ALL },
+        { path: '/address', method: RequestMethod.DELETE },
+        { path: '/address', method: RequestMethod.PATCH },
+        { path: '/address', method: RequestMethod.POST },
+        { path: '/address/*', method: RequestMethod.DELETE },
+        { path: '/address/*', method: RequestMethod.PATCH },
+        { path: '/address/*', method: RequestMethod.POST },
       );
   }
 }
