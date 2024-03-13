@@ -17,7 +17,6 @@ import {
 import { errorMessage } from '@/errors';
 import { flashValidation } from '@/validations';
 import { Media } from '../media/media.entity';
-import console from 'console';
 
 @Injectable()
 export class FlashService {
@@ -34,6 +33,7 @@ export class FlashService {
       images: flash.images.map((image) => this.mediaService.formatMedia(image)),
       isAvailable: flash.isAvailable,
       isVisible: flash.isVisible,
+      isFavorite: flash.isFavorite,
       createdAt: flash.createdAt,
       updatedAt: flash.updatedAt,
     };
@@ -54,6 +54,7 @@ export class FlashService {
     const where = {
       isVisible: searchParams.isVisible,
       isAvailable: searchParams.isAvailable,
+      isFavorite: searchParams.isFavorite,
     };
 
     return {

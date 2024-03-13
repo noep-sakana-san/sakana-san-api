@@ -14,6 +14,16 @@ const update: yup.ObjectSchema<UpdateUserApi> = yup.object({
     .min(1, errorMessage.fields('placeId').REQUIRED)
     .optional()
     .default(undefined),
+  email: yup.string().email(errorMessage.fields('email').NOT_EMAIL).optional(),
+  phone: yup.string().optional(),
+  instagram: yup
+    .string()
+    .url(errorMessage.fields('instagram').NOT_URL)
+    .optional(),
+  facebook: yup
+    .string()
+    .url(errorMessage.fields('facebook').NOT_URL)
+    .optional(),
 });
 
 const create: yup.ObjectSchema<RegisterApi> = yup.object({

@@ -25,7 +25,7 @@ export class Media extends BaseEntity {
   @JoinColumn()
   tattoo: Tattoo;
 
-  @ManyToOne(() => Tattoo, (tattoo) => tattoo.afterImages)
+  @ManyToOne(() => Tattoo, (tattoo) => tattoo.healeds)
   @JoinColumn()
   tattooAfter: Tattoo;
 

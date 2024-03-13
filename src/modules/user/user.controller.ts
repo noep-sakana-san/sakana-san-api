@@ -59,10 +59,7 @@ export class UserController {
   @HttpCode(204)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async deleteUserById(
-    @GetCurrentUser() user: User,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async deleteUserById(@Param('id') id: string): Promise<void> {
     try {
       const possibleUser = await this.service.getOneById(id);
       if (!possibleUser)

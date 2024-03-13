@@ -5,4 +5,5 @@ export interface FlashDto extends BaseDto {
   images: MediaDto[];
   isVisible: boolean;
   isAvailable: boolean;
+  isFavorite: boolean;
 }

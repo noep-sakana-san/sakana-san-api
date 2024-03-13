@@ -18,13 +18,13 @@ db.create: ## Create database
 	@yarn migrate
 
 db.delete: ## Delete database
-	docker compose down && docker volume rm -f iggy-api_db && rm -rf ./public/files && rm -rf ./src/migrations/
+	docker compose down && docker volume rm -f sakana-san-api_db && rm -rf ./public/files && rm -rf ./src/migrations/
 
 db.start: ## Start database
-	docker start iggy-db
+	docker start sakana-san-db
 	
 db.stop: ## Stop database
-	docker stop iggy-db
+	docker stop sakana-san-db
 
 db.clean: ## Clean database
 	@echo "Removing old db_data..."

@@ -9,18 +9,22 @@ const create: yup.ObjectSchema<CreateTattooApi> = yup.object({
     .typeError(errorMessage.fields('date').NOT_DATE),
   imageIds: yup
     .array()
-    .of(yup.string())
+    .of(yup.string().typeError(errorMessage.fields('imageIds').NOT_STRING))
     .required(errorMessage.fields('imageIds').REQUIRED)
     .typeError(errorMessage.fields('imageIds').NOT_ARRAY),
   isVisible: yup
     .boolean()
     .required(errorMessage.fields('isVisible').REQUIRED)
     .typeError(errorMessage.fields('isVisible').NOT_BOOLEAN),
+  isFavorite: yup
+    .boolean()
+    .required(errorMessage.fields('isFavorite').REQUIRED)
+    .typeError(errorMessage.fields('isFavorite').NOT_BOOLEAN),
   title: yup.string().typeError(errorMessage.fields('title').NOT_STRING),
   description: yup
     .string()
     .typeError(errorMessage.fields('description').NOT_STRING),
-  afterImageIds: yup
+  healedIds: yup
     .array()
     .of(yup.string())
     .typeError(errorMessage.fields('afterImageIds').NOT_ARRAY),
@@ -31,16 +35,19 @@ const update: yup.ObjectSchema<UpdateTattooApi> = yup.object({
   date: yup.date().typeError(errorMessage.fields('date').NOT_DATE),
   imageIds: yup
     .array()
-    .of(yup.string())
+    .of(yup.string().typeError(errorMessage.fields('imageIds').NOT_STRING))
     .typeError(errorMessage.fields('imageIds').NOT_ARRAY),
   isVisible: yup
     .boolean()
     .typeError(errorMessage.fields('isVisible').NOT_BOOLEAN),
+  isFavorite: yup
+    .boolean()
+    .typeError(errorMessage.fields('isFavorite').NOT_BOOLEAN),
   title: yup.string().typeError(errorMessage.fields('title').NOT_STRING),
   description: yup
     .string()
     .typeError(errorMessage.fields('description').NOT_STRING),
-  afterImageIds: yup
+  healedIds: yup
     .array()
     .of(yup.string())
     .typeError(errorMessage.fields('afterImageIds').NOT_ARRAY),

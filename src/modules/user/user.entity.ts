@@ -6,8 +6,20 @@ export class User extends BaseEntity {
   @Column()
   username: string;
 
-  @Column({ nullable: true })
+  @Column()
   password: string;
+
+  @Column({ nullable: true })
+  email?: string;
+
+  @Column({ nullable: true })
+  phone?: string;
+
+  @Column({ nullable: true })
+  instagram?: string;
+
+  @Column({ nullable: true })
+  facebook?: string;
 
   @OneToOne(() => Place, {
     cascade: true,

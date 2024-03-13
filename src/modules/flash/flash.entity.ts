@@ -13,4 +13,7 @@ export class Flash extends BaseEntity {
 
   @Column({ default: true })
   isAvailable: boolean;
+
+  @Column({ default: true })
+  isFavorite: boolean;
 }

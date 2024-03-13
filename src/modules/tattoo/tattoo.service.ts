@@ -20,7 +20,6 @@ import { errorMessage } from '@/errors';
 import { tattooValidation } from '@/validations';
 import { Media } from '../media/media.entity';
 import { Place } from '../place/place.entity';
-import console from 'console';
 
 @Injectable()
 export class TattooService {
@@ -40,9 +39,10 @@ export class TattooService {
         this.mediaService.formatMedia(image),
       ),
       isVisible: tattoo.isVisible,
+      isFavorite: tattoo.isFavorite,
       title: tattoo.title,
       description: tattoo.description,
-      afterImages: tattoo.afterImages?.map((image) =>
+      healeds: tattoo.healeds?.map((image) =>
         this.mediaService.formatMedia(image),
       ),
       place: this.placeService.formatPlace(tattoo.place),
@@ -52,7 +52,7 @@ export class TattooService {
   }
 
   searchCondition(searchParams?: TattooSearchParams): FindManyOptions<Tattoo> {
-    const relations = ['images', 'afterImages', 'place', 'place.address'];
+    const relations = ['images', 'healeds', 'place', 'place.address'];
 
     if (!searchParams)
       return {
@@ -66,6 +66,7 @@ export class TattooService {
     const where = {
       title: searchByString(searchParams?.search),
       isVisible: searchParams.isVisible,
+      isFavorite: searchParams.isFavorite,
       place: {
         id: searchParams.placeId,
       },
@@ -84,7 +85,7 @@ export class TattooService {
     try {
       const tattoo = await this.tattooRepository.findOneOrFail({
         where: [{ id: _id }],
-        relations: ['images', 'afterImages', 'place', 'place.address'],
+        relations: ['images', 'healeds', 'place', 'place.address'],
       });
 
       return tattoo;
@@ -112,22 +113,20 @@ export class TattooService {
 
   async createTattoo(data: CreateTattooApi): Promise<Tattoo> {
     try {
-      const { imageIds, afterImageIds, placeId, ...tattooData } = data;
       await tattooValidation.create.validate(data, {
         abortEarly: false,
       });
+      const { imageIds, healedIds, placeId, ...tattooData } = data;
       let images: Media[];
       if (imageIds) {
         images = await Promise.all(
           imageIds.map((imageId) => this.mediaService.getMediaById(imageId)),
         );
       }
-      let afterImages: Media[];
-      if (afterImageIds) {
-        afterImages = await Promise.all(
-          afterImageIds.map((imageId) =>
-            this.mediaService.getMediaById(imageId),
-          ),
+      let healeds: Media[];
+      if (healedIds) {
+        healeds = await Promise.all(
+          healedIds.map((imageId) => this.mediaService.getMediaById(imageId)),
         );
       }
       let place: Place;
@@ -137,7 +136,7 @@ export class TattooService {
       const { id } = await this.tattooRepository.save({
         ...tattooData,
         images,
-        afterImages,
+        healeds,
         place,
       });
       return await this.getTattooById(id);
@@ -149,7 +148,7 @@ export class TattooService {
 
   async updateTattoo(data: UpdateTattooApi, id: string): Promise<Tattoo> {
     try {
-      const { imageIds, afterImageIds, placeId, ...tattooData } = data;
+      const { imageIds, healedIds, placeId, ...tattooData } = data;
 
       await tattooValidation.update.validate(data, {
         abortEarly: false,
@@ -164,17 +163,15 @@ export class TattooService {
           imageIds.map((imageId) => this.mediaService.getMediaById(imageId)),
         );
       }
-      let afterImages: Media[];
-      if (afterImageIds) {
+      let healeds: Media[];
+      if (healedIds) {
         await Promise.all(
-          tattoo.afterImages.map((image) =>
+          tattoo.healeds.map((image) =>
             this.mediaService.deleteMedia(image.id),
           ),
         );
-        afterImages = await Promise.all(
-          afterImageIds.map((imageId) =>
-            this.mediaService.getMediaById(imageId),
-          ),
+        healeds = await Promise.all(
+          healedIds.map((imageId) => this.mediaService.getMediaById(imageId)),
         );
       }
       let place: Place;
@@ -186,7 +183,7 @@ export class TattooService {
         ...tattoo,
         ...tattooData,
         images,
-        afterImages,
+        healeds,
         place,
       });
       return await this.getTattooById(id);
@@ -204,9 +201,9 @@ export class TattooService {
           tattoo.images.map((image) => this.mediaService.deleteMedia(image.id)),
         );
       }
-      if (tattoo.afterImages) {
+      if (tattoo.healeds) {
         await Promise.all(
-          tattoo.afterImages.map((image) =>
+          tattoo.healeds.map((image) =>
             this.mediaService.deleteMedia(image.id),
           ),
         );

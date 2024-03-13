@@ -10,6 +10,7 @@ import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlaceService } from '../place/place.service';
 import { userValidation } from '@/validations';
+import { Place } from '../place/place.entity';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,10 @@ export class UserService {
       id: user.id,
       userName: user.username,
       place: user.place ? this.placeService.formatPlace(user.place) : undefined,
+      email: user.email ?? undefined,
+      phone: user.phone ?? undefined,
+      instagram: user.instagram ?? undefined,
+      facebook: user.facebook ?? undefined,
       updatedAt: user.updatedAt,
       createdAt: user.createdAt,
     };
@@ -31,7 +36,7 @@ export class UserService {
 
   async getOneById(_id: string): Promise<User> {
     try {
-      const user = await this.userRepository.findOne({
+      const user = await this.userRepository.findOneOrFail({
         where: { id: _id },
         relations: ['place'],
       });
@@ -64,18 +69,21 @@ export class UserService {
       await userValidation.update.validate(body, {
         abortEarly: false,
       });
+      const { username, placeId, ...rest } = body;
+
       const user = await this.getOneById(id);
       if (!user)
         throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
 
-      let place;
-      if (body.placeId) {
-        place = await this.placeService.getPlaceById(body.placeId);
+      let place: Place;
+      if (placeId) {
+        place = await this.placeService.getPlaceById(placeId);
       }
 
       await this.userRepository.update(id, {
+        ...rest,
         place: place ?? user.place,
-        username: body.username ?? user.username,
+        username: username ?? user.username,
         updatedAt: new Date(),
       });
 

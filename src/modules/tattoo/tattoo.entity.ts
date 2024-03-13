@@ -15,6 +15,9 @@ export class Tattoo extends BaseEntity {
   @Column({ default: true })
   isVisible: boolean;
 
+  @Column({ default: true })
+  isFavorite: boolean;
+
   @Column({ nullable: true })
   title?: string;
 
@@ -25,7 +28,7 @@ export class Tattoo extends BaseEntity {
     nullable: true,
   })
   @JoinColumn()
-  afterImages?: Media[];
+  healeds?: Media[];
 
   @ManyToOne(() => Place, (place) => place.tattoos, {
     nullable: true,
