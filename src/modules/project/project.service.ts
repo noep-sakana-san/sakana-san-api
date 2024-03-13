@@ -7,51 +7,54 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { MediaService } from '../media/media.service';
 import { PlaceService } from '../place/place.service';
-import { Tattoo } from './tattoo.entity';
+import { Project } from './project.entity';
 import {
   ApiSearchResponse,
-  CreateTattooApi,
-  TattooDto,
-  TattooSearchParams,
-  UpdateTattooApi,
+  CreateProjectApi,
+  ProjectDto,
+  ProjectSearchParams,
+  UpdateProjectApi,
 } from '@/types';
 import { searchByString } from '@/utils/search';
 import { errorMessage } from '@/errors';
-import { tattooValidation } from '@/validations';
+import { projectValidation } from '@/validations';
 import { Media } from '../media/media.entity';
 import { Place } from '../place/place.entity';
 
 @Injectable()
-export class TattooService {
+export class ProjectService {
   constructor(
-    @InjectRepository(Tattoo)
-    private tattooRepository: Repository<Tattoo>,
+    @InjectRepository(Project)
+    private projectRepository: Repository<Project>,
     private mediaService: MediaService,
     private placeService: PlaceService,
   ) {}
 
-  formatTattoo(tattoo?: Tattoo): TattooDto {
-    if (!tattoo) return;
+  formatProject(project?: Project): ProjectDto {
+    if (!project) return;
     return {
-      id: tattoo.id,
-      date: tattoo.date,
-      images: tattoo.images.map((image) =>
+      id: project.id,
+      type: project.type,
+      date: project.date,
+      images: project.images.map((image) =>
         this.mediaService.formatMedia(image),
       ),
-      isVisible: tattoo.isVisible,
-      isFavorite: tattoo.isFavorite,
-      title: tattoo.title,
-      description: tattoo.description,
-      healeds: tattoo.healeds?.map((image) =>
+      isVisible: project.isVisible,
+      isFavorite: project.isFavorite,
+      title: project.title ?? undefined,
+      description: project.description ?? undefined,
+      healeds: project.healeds?.map((image) =>
         this.mediaService.formatMedia(image),
       ),
-      place: this.placeService.formatPlace(tattoo.place),
-      createdAt: tattoo.createdAt,
-      updatedAt: tattoo.updatedAt,
+      place: this.placeService.formatPlace(project.place),
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
     };
   }
 
-  searchCondition(searchParams?: TattooSearchParams): FindManyOptions<Tattoo> {
+  searchCondition(
+    searchParams?: ProjectSearchParams,
+  ): FindManyOptions<Project> {
     const relations = ['images', 'healeds', 'place', 'place.address'];
 
     if (!searchParams)
@@ -65,6 +68,7 @@ export class TattooService {
 
     const where = {
       title: searchByString(searchParams?.search),
+      type: searchParams.type,
       isVisible: searchParams.isVisible,
       isFavorite: searchParams.isFavorite,
       place: {
@@ -81,42 +85,42 @@ export class TattooService {
     };
   }
 
-  async getTattooById(_id: string): Promise<Tattoo> {
+  async getProjectById(_id: string): Promise<Project> {
     try {
-      const tattoo = await this.tattooRepository.findOneOrFail({
+      const project = await this.projectRepository.findOneOrFail({
         where: [{ id: _id }],
         relations: ['images', 'healeds', 'place', 'place.address'],
       });
 
-      return tattoo;
+      return project;
     } catch (error) {
-      throw new NotFoundException(errorMessage.api('tattoo').NOT_FOUND, _id);
+      throw new NotFoundException(errorMessage.api('project').NOT_FOUND, _id);
     }
   }
 
-  async getAllTattoos(
-    searchParams?: TattooSearchParams,
-  ): Promise<ApiSearchResponse<Tattoo>> {
+  async getAllProjects(
+    searchParams?: ProjectSearchParams,
+  ): Promise<ApiSearchResponse<Project>> {
     try {
-      const [tattoos, total] = await this.tattooRepository.findAndCount(
+      const [projects, total] = await this.projectRepository.findAndCount(
         this.searchCondition(searchParams),
       );
       return {
-        items: tattoos,
+        items: projects,
         total,
         page: searchParams.page,
       };
     } catch (error) {
-      throw new NotFoundException(errorMessage.api('tattoo').NOT_FOUND);
+      throw new NotFoundException(errorMessage.api('project').NOT_FOUND);
     }
   }
 
-  async createTattoo(data: CreateTattooApi): Promise<Tattoo> {
+  async createProject(data: CreateProjectApi): Promise<Project> {
     try {
-      await tattooValidation.create.validate(data, {
+      await projectValidation.create.validate(data, {
         abortEarly: false,
       });
-      const { imageIds, healedIds, placeId, ...tattooData } = data;
+      const { imageIds, healedIds, placeId, ...projectData } = data;
       let images: Media[];
       if (imageIds) {
         images = await Promise.all(
@@ -133,31 +137,33 @@ export class TattooService {
       if (placeId) {
         place = await this.placeService.getPlaceById(placeId);
       }
-      const { id } = await this.tattooRepository.save({
-        ...tattooData,
+      const { id } = await this.projectRepository.save({
+        ...projectData,
         images,
         healeds,
         place,
       });
-      return await this.getTattooById(id);
+      return await this.getProjectById(id);
     } catch (e) {
       console.log(e);
       throw new BadRequestException(e.errors);
     }
   }
 
-  async updateTattoo(data: UpdateTattooApi, id: string): Promise<Tattoo> {
+  async updateProject(data: UpdateProjectApi, id: string): Promise<Project> {
     try {
-      const { imageIds, healedIds, placeId, ...tattooData } = data;
+      const { imageIds, healedIds, placeId, ...projectData } = data;
 
-      await tattooValidation.update.validate(data, {
+      await projectValidation.update.validate(data, {
         abortEarly: false,
       });
-      const tattoo = await this.getTattooById(id);
+      const project = await this.getProjectById(id);
       let images: Media[];
       if (imageIds) {
         await Promise.all(
-          tattoo.images.map((image) => this.mediaService.deleteMedia(image.id)),
+          project.images.map((image) =>
+            this.mediaService.deleteMedia(image.id),
+          ),
         );
         images = await Promise.all(
           imageIds.map((imageId) => this.mediaService.getMediaById(imageId)),
@@ -166,7 +172,7 @@ export class TattooService {
       let healeds: Media[];
       if (healedIds) {
         await Promise.all(
-          tattoo.healeds.map((image) =>
+          project.healeds.map((image) =>
             this.mediaService.deleteMedia(image.id),
           ),
         );
@@ -179,38 +185,40 @@ export class TattooService {
         place = await this.placeService.getPlaceById(placeId);
       }
 
-      await this.tattooRepository.save({
-        ...tattoo,
-        ...tattooData,
+      await this.projectRepository.save({
+        ...project,
+        ...projectData,
         images,
         healeds,
         place,
       });
-      return await this.getTattooById(id);
+      return await this.getProjectById(id);
     } catch (e) {
       console.log(e);
       throw new BadRequestException(e.errors);
     }
   }
 
-  async deleteTattoo(id: string): Promise<void> {
+  async deleteProject(id: string): Promise<void> {
     try {
-      const tattoo = await this.getTattooById(id);
-      if (tattoo.images) {
+      const project = await this.getProjectById(id);
+      if (project.images) {
         await Promise.all(
-          tattoo.images.map((image) => this.mediaService.deleteMedia(image.id)),
-        );
-      }
-      if (tattoo.healeds) {
-        await Promise.all(
-          tattoo.healeds.map((image) =>
+          project.images.map((image) =>
             this.mediaService.deleteMedia(image.id),
           ),
         );
       }
-      await this.tattooRepository.delete(id);
+      if (project.healeds) {
+        await Promise.all(
+          project.healeds.map((image) =>
+            this.mediaService.deleteMedia(image.id),
+          ),
+        );
+      }
+      await this.projectRepository.delete(id);
     } catch (error) {
-      throw new NotFoundException(errorMessage.api('tattoo').NOT_DELETED, id);
+      throw new NotFoundException(errorMessage.api('project').NOT_DELETED, id);
     }
   }
 }

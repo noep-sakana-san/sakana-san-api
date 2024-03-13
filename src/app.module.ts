@@ -14,8 +14,7 @@ import { UserModule } from './modules/user/user.module';
 import { AddressModule } from './modules/address/address.module';
 import { PlaceModule } from './modules/place/place.module';
 import { SessionModule } from './modules/session/session.module';
-import { TattooModule } from './modules/tattoo/tattoo.module';
-import { FlashModule } from './modules/flash/flash.module';
+import { ProjectModule } from './modules/project/project.module';
 
 @Module({
   imports: [
@@ -44,8 +43,7 @@ import { FlashModule } from './modules/flash/flash.module';
     AddressModule,
     PlaceModule,
     SessionModule,
-    TattooModule,
-    FlashModule,
+    ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

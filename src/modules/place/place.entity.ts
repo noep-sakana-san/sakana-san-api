@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { Address } from '../address/address.entity';
 import { Session } from '../session/session.entity';
-import { Tattoo } from '../tattoo/tattoo.entity';
+import { Project } from '../project/project.entity';
 
 @Entity()
 export class Place extends BaseEntity {
@@ -20,7 +20,7 @@ export class Place extends BaseEntity {
   @JoinColumn()
   sessions: Session[];
 
-  @OneToMany(() => Tattoo, (tattoo) => tattoo.place)
+  @OneToMany(() => Project, (project) => project.place)
   @JoinColumn()
-  tattoos: Tattoo[];
+  projects: Project[];
 }

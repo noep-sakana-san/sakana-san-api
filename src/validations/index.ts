@@ -3,5 +3,4 @@ export * from './user';
 export * from './address';
 export * from './place';
 export * from './session';
-export * from './tattoo';
-export * from './flash';
+export * from './project';

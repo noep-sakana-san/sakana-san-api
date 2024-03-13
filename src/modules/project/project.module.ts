@@ -4,10 +4,10 @@ import {
   RequestMethod,
   forwardRef,
 } from '@nestjs/common';
-import { TattooService } from './tattoo.service';
-import { TattooController } from './tattoo.controller';
+import { ProjectService } from './project.service';
+import { ProjectController } from './project.controller';
 import { AuthMiddleware } from '../auth/auth.middleware';
-import { Tattoo } from './tattoo.entity';
+import { Project } from './project.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
@@ -16,27 +16,27 @@ import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Tattoo]),
+    TypeOrmModule.forFeature([Project]),
     forwardRef(() => UserModule),
     forwardRef(() => AuthModule),
     forwardRef(() => PlaceModule),
     forwardRef(() => MediaModule),
   ],
-  providers: [TattooService],
-  controllers: [TattooController],
-  exports: [TattooService],
+  providers: [ProjectService],
+  controllers: [ProjectController],
+  exports: [ProjectService],
 })
-export class TattooModule {
+export class ProjectModule {
   public configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/tattoos', method: RequestMethod.DELETE },
-        { path: '/tattoos', method: RequestMethod.PATCH },
-        { path: '/tattoos', method: RequestMethod.POST },
-        { path: '/tattoos/*', method: RequestMethod.DELETE },
-        { path: '/tattoos/*', method: RequestMethod.PATCH },
-        { path: '/tattoos/*', method: RequestMethod.POST },
+        { path: '/projects', method: RequestMethod.DELETE },
+        { path: '/projects', method: RequestMethod.PATCH },
+        { path: '/projects', method: RequestMethod.POST },
+        { path: '/projects/*', method: RequestMethod.DELETE },
+        { path: '/projects/*', method: RequestMethod.PATCH },
+        { path: '/projects/*', method: RequestMethod.POST },
       );
   }
 }

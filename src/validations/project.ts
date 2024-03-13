@@ -1,8 +1,12 @@
 import { errorMessage } from '@/errors';
-import { CreateTattooApi, UpdateTattooApi } from 'src/types';
+import { CreateProjectApi, ProjectType, UpdateProjectApi } from 'src/types';
 import * as yup from 'yup';
 
-const create: yup.ObjectSchema<CreateTattooApi> = yup.object({
+const create: yup.ObjectSchema<CreateProjectApi> = yup.object({
+  type: yup
+    .string<ProjectType>()
+    .oneOf(Object.values(ProjectType), errorMessage.fields('type').NOT_VALID)
+    .required(errorMessage.fields('type').REQUIRED),
   date: yup
     .date()
     .required(errorMessage.fields('date').REQUIRED)
@@ -31,7 +35,11 @@ const create: yup.ObjectSchema<CreateTattooApi> = yup.object({
   placeId: yup.string().typeError(errorMessage.fields('place').NOT_STRING),
 });
 
-const update: yup.ObjectSchema<UpdateTattooApi> = yup.object({
+const update: yup.ObjectSchema<UpdateProjectApi> = yup.object({
+  type: yup
+    .string<ProjectType>()
+    .oneOf(Object.values(ProjectType), errorMessage.fields('type').NOT_VALID)
+    .optional(),
   date: yup.date().typeError(errorMessage.fields('date').NOT_DATE),
   imageIds: yup
     .array()
@@ -54,7 +62,7 @@ const update: yup.ObjectSchema<UpdateTattooApi> = yup.object({
   placeId: yup.string().typeError(errorMessage.fields('place').NOT_STRING),
 });
 
-export const tattooValidation = {
+export const projectValidation = {
   create,
   update,
 };

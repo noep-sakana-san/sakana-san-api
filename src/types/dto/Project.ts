@@ -1,8 +1,10 @@
 import { BaseDto } from './BaseDto';
 import { PlaceDto } from './Place';
 import { MediaDto } from './Media';
+import { ProjectType } from '../api';
 
-export interface TattooDto extends BaseDto {
+export interface ProjectDto extends BaseDto {
+  type: ProjectType;
   date: Date;
   images: MediaDto[];
   isVisible: boolean;
