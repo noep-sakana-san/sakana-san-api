@@ -20,7 +20,10 @@ export class Place extends BaseEntity {
   @JoinColumn()
   sessions: Session[];
 
-  @OneToMany(() => Project, (project) => project.place)
+  @OneToMany(() => Project, (project) => project.place, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn()
   projects: Project[];
 }

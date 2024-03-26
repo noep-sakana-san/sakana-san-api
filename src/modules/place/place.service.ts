@@ -17,7 +17,6 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { Place } from './place.entity';
 import { AddressService } from '../address/address.service';
 import { searchByString } from '@/utils/search';
-
 @Injectable()
 export class PlaceService {
   constructor(
@@ -126,6 +125,7 @@ export class PlaceService {
   async deletePlace(id: string): Promise<void> {
     try {
       const place = await this.getPlaceById(id);
+
       if (place.address) {
         await this.addressService.deleteAddress(place.address.id);
       }

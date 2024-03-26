@@ -1,5 +1,5 @@
 import { errorMessage } from '@/errors';
-import { CreatePlaceApi, UpdatePlaceApi } from 'src/types';
+import { CreatePlaceApi, UpdatePlaceApi } from '@/types';
 import * as yup from 'yup';
 
 const create: yup.ObjectSchema<CreatePlaceApi> = yup.object({

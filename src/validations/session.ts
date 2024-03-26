@@ -1,5 +1,5 @@
 import { errorMessage } from '@/errors';
-import { CreateSessionApi, UpdateSessionApi } from '@/types/api/Session';
+import { CreateSessionApi, UpdateSessionApi } from '@/types';
 import * as yup from 'yup';
 
 const create: yup.ObjectSchema<CreateSessionApi> = yup.object({

@@ -40,6 +40,7 @@ export class Project extends BaseEntity {
 
   @ManyToOne(() => Place, (place) => place.projects, {
     nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn()
   place?: Place;

@@ -1,7 +1,7 @@
 export interface SearchParams {
   search?: string;
   pageSize?: number;
-  page?: number;
+  page: number;
   orderBy?: string;
   orderType?: 'ASC' | 'DESC';
 }

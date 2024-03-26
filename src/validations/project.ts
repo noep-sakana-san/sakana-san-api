@@ -1,5 +1,5 @@
 import { errorMessage } from '@/errors';
-import { CreateProjectApi, ProjectType, UpdateProjectApi } from 'src/types';
+import { CreateProjectApi, ProjectType, UpdateProjectApi } from '@/types';
 import * as yup from 'yup';
 
 const create: yup.ObjectSchema<CreateProjectApi> = yup.object({
@@ -14,6 +14,7 @@ const create: yup.ObjectSchema<CreateProjectApi> = yup.object({
   imageIds: yup
     .array()
     .of(yup.string().typeError(errorMessage.fields('imageIds').NOT_STRING))
+    .min(1, errorMessage.fields('imageIds').REQUIRED)
     .required(errorMessage.fields('imageIds').REQUIRED)
     .typeError(errorMessage.fields('imageIds').NOT_ARRAY),
   isVisible: yup
