@@ -13,4 +13,6 @@ export interface ProjectDto extends BaseDto {
   description?: string;
   healeds?: MediaDto[];
   place?: PlaceDto;
+  coverImage?: MediaDto;
+  coverHealed?: MediaDto;
 }

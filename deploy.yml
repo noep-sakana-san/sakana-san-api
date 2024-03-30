@@ -1,0 +1,35 @@
+---
+- name: Déploiement de l'application avec Docker Compose
+  hosts: noephilippe@noephilippe.freeboxos.fr
+  become: yes
+
+  tasks:
+    - name: Créer le répertoire sakana-san s'il n'existe pas
+      become_user: noephilippe
+      file:
+        path: ~/sakana-san
+        state: directory
+      register: create_directory_result
+      ignore_errors: yes
+
+    - name: Copier le fichier docker-compose.prod.yml
+      become_user: noephilippe
+      copy:
+        src: docker-compose.prod.yml
+        dest: ~/sakana-san/docker-compose.prod.yml
+      register: copy_docker_compose_result
+      ignore_errors: yes
+
+    - name: Copier le fichier .env.production
+      become_user: noephilippe
+      copy:
+        src: .env.production
+        dest: ~/sakana-san/.env
+      register: copy_env_result
+      ignore_errors: yes
+
+    - name: Démarrer Docker Compose
+      become_user: noephilippe
+      command: docker compose -f ~/sakana-san/docker-compose.prod.yml up -d
+      register: docker_compose_result
+      ignore_errors: yes

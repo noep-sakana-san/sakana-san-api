@@ -44,4 +44,10 @@ export class Project extends BaseEntity {
   })
   @JoinColumn()
   place?: Place;
+
+  @Column({ nullable: true })
+  coverImageId?: string;
+
+  @Column({ nullable: true })
+  coverHealedId?: string;
 }

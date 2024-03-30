@@ -32,6 +32,12 @@ export class ProjectService {
 
   formatProject(project?: Project): ProjectDto {
     if (!project) return;
+    const coverImage = project.images.find(
+      (image) => image.id === project.coverImageId,
+    );
+    const coverHealed = project.healeds.find(
+      (image) => image.id === project.coverHealedId,
+    );
     return {
       id: project.id,
       type: project.type,
@@ -49,6 +55,8 @@ export class ProjectService {
       place: this.placeService.formatPlace(project.place),
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
+      coverImage: this.mediaService.formatMedia(coverImage),
+      coverHealed: this.mediaService.formatMedia(coverHealed),
     };
   }
 
@@ -153,26 +161,34 @@ export class ProjectService {
   async updateProject(data: UpdateProjectApi, id: string): Promise<Project> {
     try {
       const { imageIds, healedIds, placeId, ...projectData } = data;
-
       await projectValidation.update.validate(data, {
         abortEarly: false,
       });
       const project = await this.getProjectById(id);
+
       let images: Media[];
       if (imageIds) {
+        const imagesToDelete = project.images.filter(
+          (image) => !imageIds.includes(image.id),
+        );
         await Promise.all(
-          project.images.map((image) =>
+          imagesToDelete.map((image) =>
             this.mediaService.deleteMedia(image.id),
           ),
         );
+
         images = await Promise.all(
           imageIds.map((imageId) => this.mediaService.getMediaById(imageId)),
         );
       }
+
       let healeds: Media[];
       if (healedIds) {
+        const imagesToDelete = project.healeds.filter(
+          (image) => !healedIds.includes(image.id),
+        );
         await Promise.all(
-          project.healeds.map((image) =>
+          imagesToDelete.map((image) =>
             this.mediaService.deleteMedia(image.id),
           ),
         );
@@ -180,6 +196,7 @@ export class ProjectService {
           healedIds.map((imageId) => this.mediaService.getMediaById(imageId)),
         );
       }
+
       let place: Place;
       if (placeId) {
         place = await this.placeService.getPlaceById(placeId);

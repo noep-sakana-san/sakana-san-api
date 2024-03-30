@@ -13,9 +13,14 @@ const create: yup.ObjectSchema<CreateProjectApi> = yup.object({
     .typeError(errorMessage.fields('date').NOT_DATE),
   imageIds: yup
     .array()
-    .of(yup.string().typeError(errorMessage.fields('imageIds').NOT_STRING))
-    .min(1, errorMessage.fields('imageIds').REQUIRED)
+    .of(
+      yup
+        .string()
+        .required(errorMessage.fields('imageIds').REQUIRED)
+        .typeError(errorMessage.fields('imageIds').NOT_STRING),
+    )
     .required(errorMessage.fields('imageIds').REQUIRED)
+    .min(1, errorMessage.fields('imageIds').REQUIRED)
     .typeError(errorMessage.fields('imageIds').NOT_ARRAY),
   isVisible: yup
     .boolean()
@@ -31,9 +36,15 @@ const create: yup.ObjectSchema<CreateProjectApi> = yup.object({
     .typeError(errorMessage.fields('description').NOT_STRING),
   healedIds: yup
     .array()
-    .of(yup.string())
+    .of(yup.string().required(errorMessage.fields('healedIds').REQUIRED))
     .typeError(errorMessage.fields('afterImageIds').NOT_ARRAY),
   placeId: yup.string().typeError(errorMessage.fields('place').NOT_STRING),
+  coverImageId: yup
+    .string()
+    .typeError(errorMessage.fields('coverImageId').NOT_STRING),
+  coverHealedId: yup
+    .string()
+    .typeError(errorMessage.fields('coverHealedId').NOT_STRING),
 });
 
 const update: yup.ObjectSchema<UpdateProjectApi> = yup.object({
@@ -44,7 +55,12 @@ const update: yup.ObjectSchema<UpdateProjectApi> = yup.object({
   date: yup.date().typeError(errorMessage.fields('date').NOT_DATE),
   imageIds: yup
     .array()
-    .of(yup.string().typeError(errorMessage.fields('imageIds').NOT_STRING))
+    .of(
+      yup
+        .string()
+        .required(errorMessage.fields('imageIds').REQUIRED)
+        .typeError(errorMessage.fields('imageIds').NOT_STRING),
+    )
     .typeError(errorMessage.fields('imageIds').NOT_ARRAY),
   isVisible: yup
     .boolean()
@@ -58,9 +74,15 @@ const update: yup.ObjectSchema<UpdateProjectApi> = yup.object({
     .typeError(errorMessage.fields('description').NOT_STRING),
   healedIds: yup
     .array()
-    .of(yup.string())
+    .of(yup.string().required(errorMessage.fields('healedIds').REQUIRED))
     .typeError(errorMessage.fields('afterImageIds').NOT_ARRAY),
   placeId: yup.string().typeError(errorMessage.fields('place').NOT_STRING),
+  coverImageId: yup
+    .string()
+    .typeError(errorMessage.fields('coverImageId').NOT_STRING),
+  coverHealedId: yup
+    .string()
+    .typeError(errorMessage.fields('coverHealedId').NOT_STRING),
 });
 
 export const projectValidation = {

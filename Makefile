@@ -57,3 +57,19 @@ module.create: ## Create module
 	touch ./src/validations/$$name.ts; \
 	echo "import { Create$${upperName}Api, Update$${upperName}Api } from 'src/types';\nimport * as yup from 'yup';\n\nconst create: yup.ObjectSchema<Create$${upperName}Api> = yup.object({});\n\nconst update: yup.ObjectSchema<Update$${upperName}Api> = yup.object({});\n\nexport const $${name}Validation = {\n  create,\n  update,\n};" >> ./src/validations/$$name.ts; \
 	echo "export * from './$${name}';" >> ./src/validations/index.ts; \
+
+##-- DOCKER
+
+docker.build: ## Build docker image
+	docker build -t sakana-san-api:latest .  
+
+docker.tag: ## Tag docker image
+	docker tag sakana-san-api:latest noephilippe/sakana-san-api:latest
+
+docker.push: ## Push docker image
+	docker push noephilippe/sakana-san-api:latest
+
+docker.new: ## Build, tag and push docker image
+	make docker.build
+	make docker.tag
+	make docker.push

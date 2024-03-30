@@ -17,6 +17,8 @@ export interface CreateProjectApi {
   description?: string;
   healedIds?: string[];
   placeId?: string;
+  coverImageId?: string;
+  coverHealedId?: string;
 }
 
 export interface UpdateProjectApi {
@@ -29,6 +31,8 @@ export interface UpdateProjectApi {
   description?: string;
   healedIds?: string[];
   placeId?: string;
+  coverImageId?: string;
+  coverHealedId?: string;
 }
 
 export interface ProjectSearchParams extends SearchParams {
