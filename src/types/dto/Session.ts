@@ -7,4 +7,5 @@ export interface SessionDto extends BaseDto {
   startDate: Date;
   endDate?: Date;
   isVisible: boolean;
+  isArchived: boolean;
 }

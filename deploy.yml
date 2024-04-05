@@ -12,11 +12,11 @@
       register: create_directory_result
       ignore_errors: yes
 
-    - name: Copier le fichier docker-compose.prod.yml
+    - name: Copier le fichier docker-compose.api.yml
       become_user: noephilippe
       copy:
-        src: docker-compose.prod.yml
-        dest: ~/sakana-san/docker-compose.prod.yml
+        src: docker-compose.api.yml
+        dest: ~/sakana-san/docker-compose.api.yml
       register: copy_docker_compose_result
       ignore_errors: yes
 
@@ -28,8 +28,23 @@
       register: copy_env_result
       ignore_errors: yes
 
+    - name: Arrêter le service Docker
+      become_user: noephilippe
+      command: docker compose -f ~/sakana-san/docker-compose.api.yml down
+      ignore_errors: yes
+
+    - name: Pull de l'image Docker
+      become_user: noephilippe
+      command: docker pull noephilippe/sakana-san-api:latest
+      ignore_errors: yes
+
     - name: Démarrer Docker Compose
       become_user: noephilippe
-      command: docker compose -f ~/sakana-san/docker-compose.prod.yml up -d
+      command: docker compose -f ~/sakana-san/docker-compose.api.yml up -d
       register: docker_compose_result
+      ignore_errors: yes
+
+    - name: 'Nettoyage des images Docker'
+      become_user: noephilippe
+      command: 'docker image prune -f'
       ignore_errors: yes

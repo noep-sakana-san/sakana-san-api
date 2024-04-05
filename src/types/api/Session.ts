@@ -19,4 +19,5 @@ export interface UpdateSessionApi {
 export interface SessionSearchParams extends SearchParams {
   isVisible?: boolean;
   placeId?: string;
+  isArchived?: boolean;
 }

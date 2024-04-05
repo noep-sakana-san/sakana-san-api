@@ -18,6 +18,7 @@ import { sessionValidation } from '@/validations';
 import { ApiSearchResponse } from '@/types';
 import { searchByString } from '@/utils/search';
 import { Place } from '../place/place.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class SessionService {
@@ -38,6 +39,7 @@ export class SessionService {
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
       isVisible: session.isVisible,
+      isArchived: session.isArchived,
     };
   }
 
@@ -52,12 +54,13 @@ export class SessionService {
       };
 
     const order = {
-      [searchParams.orderBy ?? 'createdAt']: searchParams.orderType ?? 'DESC',
+      [searchParams.orderBy ?? 'startDate']: searchParams.orderType ?? 'DESC',
     };
 
     const where = {
       name: searchByString(searchParams?.search),
       isVisible: searchParams.isVisible,
+      isArchived: searchParams.isArchived ?? false,
       place: {
         id: searchParams.placeId,
       },
@@ -119,22 +122,25 @@ export class SessionService {
     }
   }
 
-  async updateSession(session: UpdateSessionApi, id: string): Promise<Session> {
+  async updateSession(data: UpdateSessionApi, id: string): Promise<Session> {
     try {
-      await sessionValidation.update.validate(session, {
+      await sessionValidation.update.validate(data, {
         abortEarly: false,
       });
+      const session = await this.getSessionById(id);
       let place: Place;
-      if (session.placeId) {
-        place = await this.placeService.getPlaceById(session.placeId);
+      if (data.placeId) {
+        place = await this.placeService.getPlaceById(data.placeId);
       }
 
-      await this.sessionRepository.update(id, {
+      await this.sessionRepository.save({
         ...session,
+        ...data,
         place,
       });
       return await this.getSessionById(id);
     } catch (e) {
+      console.log('[D] session.service', e);
       throw new BadRequestException(e.errors);
     }
   }
@@ -149,5 +155,24 @@ export class SessionService {
         id,
       );
     }
+  }
+
+  //CRON TASK
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async archiveSessions() {
+    const sessions = await this.sessionRepository.find({
+      where: { isArchived: false },
+    });
+    await Promise.all(
+      sessions.map(async (session) => {
+        const now = new Date();
+        if (session.endDate && session.endDate < now) {
+          await this.sessionRepository.save({
+            ...session,
+            isArchived: true,
+          });
+        }
+      }),
+    );
   }
 }

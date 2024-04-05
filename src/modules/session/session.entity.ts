@@ -19,4 +19,7 @@ export class Session extends BaseEntity {
 
   @Column({ default: true })
   isVisible: boolean;
+
+  @Column({ default: false })
+  isArchived: boolean;
 }
