@@ -24,6 +24,7 @@ export class UserService {
     return {
       id: user.id,
       userName: user.username,
+      description: user.description ?? undefined,
       place: user.place ? this.placeService.formatPlace(user.place) : undefined,
       email: user.email ?? undefined,
       phone: user.phone ?? undefined,
@@ -38,9 +39,9 @@ export class UserService {
     try {
       const user = await this.userRepository.findOneOrFail({
         where: { id: _id },
-        relations: ['place'],
+        relations: ['place', 'place.address'],
       });
-      return { ...user };
+      return user;
     } catch (error) {
       throw new NotFoundException(errorMessage.api('user').NOT_FOUND, _id);
     }
@@ -69,7 +70,7 @@ export class UserService {
       await userValidation.update.validate(body, {
         abortEarly: false,
       });
-      const { username, placeId, ...rest } = body;
+      const { placeId, ...rest } = body;
 
       const user = await this.getOneById(id);
       if (!user)
@@ -79,15 +80,12 @@ export class UserService {
       if (placeId) {
         place = await this.placeService.getPlaceById(placeId);
       }
-
-      await this.userRepository.update(id, {
+      const userUpdated = await this.userRepository.save({
+        ...user,
         ...rest,
-        place: place ?? user.place,
-        username: username ?? user.username,
-        updatedAt: new Date(),
+        place,
       });
-
-      return await this.getOneById(id);
+      return userUpdated;
     } catch (e) {
       console.log(e);
       throw new BadRequestException(e.errors);

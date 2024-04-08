@@ -9,6 +9,7 @@ const update: yup.ObjectSchema<UpdateUserApi> = yup.object({
     .min(1, errorMessage.fields('username').REQUIRED)
     .optional()
     .default(undefined),
+  description: yup.string().optional().default(undefined),
   placeId: yup
     .string()
     .min(1, errorMessage.fields('placeId').REQUIRED)
