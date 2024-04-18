@@ -35,6 +35,13 @@ export class UserController {
     return this.service.formatUser(user);
   }
 
+  @Get()
+  @HttpCode(200)
+  async getOneByUsername(): Promise<UserDto> {
+    const user = await this.service.getUser();
+    return this.service.formatUser(user);
+  }
+
   @Patch('me')
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)

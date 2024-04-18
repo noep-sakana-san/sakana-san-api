@@ -50,8 +50,16 @@ export class UserService {
   async getOneByUsername(username: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { username },
-      relations: ['place'],
+      relations: ['place', 'place.address'],
     });
+  }
+
+  async getUser(): Promise<User> {
+    const users = await this.userRepository.find({
+      take: 1,
+      relations: ['place', 'place.address'],
+    });
+    return users[0];
   }
 
   async createUser(body: RegisterApi): Promise<User> {

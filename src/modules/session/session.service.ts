@@ -158,7 +158,7 @@ export class SessionService {
   }
 
   //CRON TASK
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async archiveSessions() {
     const sessions = await this.sessionRepository.find({
       where: { isArchived: false },
@@ -166,11 +166,19 @@ export class SessionService {
     await Promise.all(
       sessions.map(async (session) => {
         const now = new Date();
-        if (session.endDate && session.endDate < now) {
-          await this.sessionRepository.save({
-            ...session,
-            isArchived: true,
-          });
+        if (session.endDate) {
+          if (session.endDate < now)
+            await this.sessionRepository.save({
+              ...session,
+              isArchived: true,
+            });
+        } else {
+          if (session.startDate < now) {
+            await this.sessionRepository.save({
+              ...session,
+              isArchived: true,
+            });
+          }
         }
       }),
     );
