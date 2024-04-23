@@ -80,6 +80,7 @@ export class FileUploadController {
     const webpFileName = `${fileNameWithoutExtension}.webp`;
     const webpFilePath = `./public/files/${webpFileName}`;
     await fs.writeFile(webpFilePath, compressedImageBuffer);
+    await fs.unlink(file.path);
 
     return await this.mediaService.createMedia({
       ...file,

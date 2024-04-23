@@ -1,11 +1,10 @@
 ---
 - name: Déploiement de l'application avec Docker Compose
-  hosts: noephilippe@noephilippe.freeboxos.fr
-  become: yes
+  hosts: noep@sakana-san.fr 
 
   tasks:
     - name: Créer le répertoire sakana-san s'il n'existe pas
-      become_user: noephilippe
+      become_user: noep
       file:
         path: ~/sakana-san
         state: directory
@@ -13,7 +12,7 @@
       ignore_errors: yes
 
     - name: Copier le fichier docker-compose.api.yml
-      become_user: noephilippe
+      become_user: noep
       copy:
         src: docker-compose.api.yml
         dest: ~/sakana-san/docker-compose.api.yml
@@ -21,7 +20,7 @@
       ignore_errors: yes
 
     - name: Copier le fichier .env.production
-      become_user: noephilippe
+      become_user: noep
       copy:
         src: .env.production
         dest: ~/sakana-san/.env
@@ -29,22 +28,22 @@
       ignore_errors: yes
 
     - name: Arrêter le service Docker
-      become_user: noephilippe
+      become_user: noep
       command: docker compose -f ~/sakana-san/docker-compose.api.yml down
       ignore_errors: yes
 
     - name: Pull de l'image Docker
-      become_user: noephilippe
+      become_user: noep
       command: docker pull noephilippe/sakana-san-api:latest
       ignore_errors: yes
 
     - name: Démarrer Docker Compose
-      become_user: noephilippe
+      become_user: noep
       command: docker compose -f ~/sakana-san/docker-compose.api.yml up -d
       register: docker_compose_result
       ignore_errors: yes
 
     - name: 'Nettoyage des images Docker'
-      become_user: noephilippe
+      become_user: noep
       command: 'docker image prune -f'
       ignore_errors: yes

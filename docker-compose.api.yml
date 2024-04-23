@@ -13,7 +13,7 @@ services:
     volumes:
       - upload:/app/public/files
     ports:
-      - '8001:8001'
+      - '8000:8000'
     depends_on:
       - sakana-san-db
     networks:
@@ -31,7 +31,7 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
     ports:
-      - '5433:5432'
+      - '5432:5432'
     networks:
       - sakana-san-network
 

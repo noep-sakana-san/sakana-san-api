@@ -60,7 +60,7 @@ module.create: ## Create module
 
 #-- DOCKER
 docker.build: ## Build docker image
-	docker build -t sakana-san-api:latest .  
+	docker build --platform=linux/amd64 -t sakana-san-api:latest .  
 
 docker.tag: ## Tag docker image
 	docker tag sakana-san-api:latest noephilippe/sakana-san-api:latest
