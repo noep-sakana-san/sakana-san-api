@@ -16,6 +16,7 @@ const fields = (item: string) => {
     NOT_BOOLEAN: `fields.${item}.errors.notBoolean`,
     NOT_ARRAY: `fields.${item}.errors.notArray`,
     NOT_EMAIL: `fields.${item}.errors.notEmail`,
+    NOT_PHONE: `fields.${item}.errors.notPhone`,
   };
 };
 

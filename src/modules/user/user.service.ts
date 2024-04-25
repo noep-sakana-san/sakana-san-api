@@ -24,7 +24,8 @@ export class UserService {
     return {
       id: user.id,
       userName: user.username,
-      description: user.description ?? undefined,
+      paragraph1: user.paragraph1 ?? undefined,
+      paragraph2: user.paragraph2 ?? undefined,
       place: user.place ? this.placeService.formatPlace(user.place) : undefined,
       email: user.email ?? undefined,
       phone: user.phone ?? undefined,
@@ -78,7 +79,7 @@ export class UserService {
       await userValidation.update.validate(body, {
         abortEarly: false,
       });
-      const { placeId, ...rest } = body;
+      const { placeId } = body;
 
       const user = await this.getOneById(id);
       if (!user)
@@ -89,9 +90,15 @@ export class UserService {
         place = await this.placeService.getPlaceById(placeId);
       }
       const userUpdated = await this.userRepository.save({
-        ...user,
-        ...rest,
         place,
+        ...user,
+        phone: body.phone ?? null,
+        username: body.username ?? null,
+        paragraph1: body.paragraph1 ?? null,
+        paragraph2: body.paragraph2 ?? null,
+        instagram: body.instagram ?? null,
+        facebook: body.facebook ?? null,
+        email: body.email ?? null,
       });
       return userUpdated;
     } catch (e) {

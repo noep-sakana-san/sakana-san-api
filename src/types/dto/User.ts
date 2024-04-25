@@ -3,7 +3,8 @@ import { PlaceDto } from './Place';
 
 export interface UserDto extends BaseDto {
   userName: string;
-  description?: string;
+  paragraph1?: string;
+  paragraph2?: string;
   place?: PlaceDto;
   email?: string;
   phone?: string;

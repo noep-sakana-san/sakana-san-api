@@ -30,10 +30,16 @@ const create: yup.ObjectSchema<CreateProjectApi> = yup.object({
     .boolean()
     .required(errorMessage.fields('isFavorite').REQUIRED)
     .typeError(errorMessage.fields('isFavorite').NOT_BOOLEAN),
-  title: yup.string().typeError(errorMessage.fields('title').NOT_STRING),
+  title: yup
+    .string()
+    .typeError(errorMessage.fields('title').NOT_STRING)
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
   description: yup
     .string()
-    .typeError(errorMessage.fields('description').NOT_STRING),
+    .typeError(errorMessage.fields('description').NOT_STRING)
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
   healedIds: yup
     .array()
     .of(yup.string().required(errorMessage.fields('healedIds').REQUIRED))
@@ -68,10 +74,16 @@ const update: yup.ObjectSchema<UpdateProjectApi> = yup.object({
   isFavorite: yup
     .boolean()
     .typeError(errorMessage.fields('isFavorite').NOT_BOOLEAN),
-  title: yup.string().typeError(errorMessage.fields('title').NOT_STRING),
+  title: yup
+    .string()
+    .typeError(errorMessage.fields('title').NOT_STRING)
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
   description: yup
     .string()
-    .typeError(errorMessage.fields('description').NOT_STRING),
+    .typeError(errorMessage.fields('description').NOT_STRING)
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
   healedIds: yup
     .array()
     .of(yup.string().required(errorMessage.fields('healedIds').REQUIRED))

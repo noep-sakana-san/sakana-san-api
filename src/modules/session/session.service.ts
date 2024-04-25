@@ -137,6 +137,7 @@ export class SessionService {
         ...session,
         ...data,
         place,
+        name: data.name ?? null,
       });
       return await this.getSessionById(id);
     } catch (e) {

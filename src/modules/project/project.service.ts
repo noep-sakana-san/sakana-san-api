@@ -208,6 +208,8 @@ export class ProjectService {
         images,
         healeds,
         place,
+        title: projectData.title ?? null,
+        description: projectData.description ?? null,
       });
       return await this.getProjectById(id);
     } catch (e) {
