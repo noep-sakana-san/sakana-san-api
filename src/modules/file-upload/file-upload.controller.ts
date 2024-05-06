@@ -51,7 +51,7 @@ export class FileUploadController {
       }),
       limits: { fileSize: 104857600 }, // 100Mb:
       fileFilter: (req, file, callback) => {
-        const allowedExtensions = /\.(jpg|jpeg|png|pdf|webp)$/;
+        const allowedExtensions = /\.(jpg|jpeg|png|gif|bmp|svg|heic|webp)$/;
         const extension = allowedExtensions.exec(file.originalname);
         if (!extension) {
           return callback(
