@@ -6,6 +6,7 @@
 packacge-lock.json
 yarn.lock
 public/files
+backup
 
 # Logs
 logs

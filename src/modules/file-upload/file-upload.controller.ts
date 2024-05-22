@@ -7,6 +7,7 @@ import {
   Get,
   HttpCode,
   Inject,
+  Logger,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -20,6 +21,8 @@ import { MediaService } from '../media/media.service';
 import * as sharp from 'sharp';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+
+const logger = new Logger('FileUploadController');
 
 export function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
@@ -49,7 +52,7 @@ export class FileUploadController {
           callback(null, encodedName);
         },
       }),
-      limits: { fileSize: 104857600 }, // 100Mb:
+      limits: { fileSize: 400 * 1024 * 1024 }, // 400Mo
       fileFilter: (req, file, callback) => {
         const allowedExtensions = /\.(jpg|jpeg|png|gif|bmp|svg|heic|webp)$/;
         const extension = allowedExtensions.exec(file.originalname);
@@ -65,29 +68,36 @@ export class FileUploadController {
   )
   @HttpCode(201)
   async upload(@UploadedFile() file: Express.Multer.File) {
+    logger.log(`File uploaded: ${file.originalname}, size: ${file.size} bytes`);
+
     if (!file.mimetype.startsWith('image')) {
+      logger.error('Invalid file format');
       throw new BadRequestException(errorMessage.api('file').INVALID_FORMAT);
     }
+    try {
+      const imageData = await fs.readFile(file.path);
+      const compressedImageBuffer = await sharp(imageData)
+        .resize({ width: 800 })
+        .webp({ quality: 80 })
+        .toBuffer();
 
-    const imageData = await fs.readFile(file.path);
-    const compressedImageBuffer = await sharp(imageData)
-      .resize({ width: 800 })
-      .webp({ quality: 80 })
-      .toBuffer();
+      const fileNameWithoutExtension = path.parse(file.filename).name;
 
-    const fileNameWithoutExtension = path.parse(file.filename).name;
+      const webpFileName = `${fileNameWithoutExtension}.webp`;
+      const webpFilePath = `./public/files/${webpFileName}`;
+      await fs.writeFile(webpFilePath, compressedImageBuffer);
+      await fs.unlink(file.path);
 
-    const webpFileName = `${fileNameWithoutExtension}.webp`;
-    const webpFilePath = `./public/files/${webpFileName}`;
-    await fs.writeFile(webpFilePath, compressedImageBuffer);
-    await fs.unlink(file.path);
-
-    return await this.mediaService.createMedia({
-      ...file,
-      buffer: compressedImageBuffer,
-      filename: webpFileName,
-      path: webpFilePath,
-    });
+      return await this.mediaService.createMedia({
+        ...file,
+        buffer: compressedImageBuffer,
+        filename: webpFileName,
+        path: webpFilePath,
+      });
+    } catch (error) {
+      logger.error(error);
+      throw new BadRequestException(errorMessage.api('file').INVALID_FORMAT);
+    }
   }
 
   @Get('populate')

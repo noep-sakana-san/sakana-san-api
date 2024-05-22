@@ -27,16 +27,25 @@ db.stop: ## Stop database
 	docker stop sakana-san-db
 
 db.clean: ## Clean database
-	@echo "Removing old db_data..."
 	@make db.delete
-	@echo "Starting Docker Compose..."
-	@docker-compose up -d
-	@echo "Sleeping for 5 seconds..."
-	@sleep 5
-	@echo "Running make migration..."
-	@yarn migrate
-	@echo "Start server..."
+	@make db.create
 	@make start
+
+db.export: ## Export database
+	@echo "Exporting database..."
+	@docker exec -i sakana-san-db pg_dump -U sakana-san-db sakana-san-db > sakana_san.sql
+
+db.import: ## Import database
+	@echo "Importing database..."
+	@docker exec -i sakana-san-db psql -U sakana-san-db sakana-san-db < sakana_san.sql
+
+db.reset: ## Reset database
+	@echo "Resetting database..."
+	@make db.export
+	@make db.delete
+	@make db.create
+	@make start
+	@make db.import
 
 #-- TYPEORM
 module.create: ## Create module

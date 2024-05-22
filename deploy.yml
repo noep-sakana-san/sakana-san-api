@@ -1,6 +1,6 @@
 ---
 - name: Déploiement de l'application avec Docker Compose
-  hosts: noep@sakana-san.fr 
+  hosts: noep@sakana-san.fr
 
   tasks:
     - name: Créer le répertoire sakana-san s'il n'existe pas
@@ -17,6 +17,14 @@
         src: docker-compose.api.yml
         dest: ~/sakana-san/docker-compose.api.yml
       register: copy_docker_compose_result
+      ignore_errors: yes
+
+    - name: Copier le dossier scripts
+      become_user: noep
+      copy:
+        src: scripts
+        dest: ~/sakana-san
+      register: copy_scripts_result
       ignore_errors: yes
 
     - name: Copier le fichier .env.production
