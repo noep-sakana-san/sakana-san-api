@@ -114,7 +114,14 @@ export class SessionService {
       if (placeId) {
         place = await this.placeService.getPlaceById(placeId);
       }
-      const { id } = await this.sessionRepository.save({ ...rest, place });
+      const isArchived = rest.endDate
+        ? new Date(rest.endDate) < new Date()
+        : new Date(rest.startDate) < new Date();
+      const { id } = await this.sessionRepository.save({
+        ...rest,
+        place,
+        isArchived,
+      });
       return await this.getSessionById(id);
     } catch (e) {
       console.log(e);

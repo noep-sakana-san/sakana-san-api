@@ -18,7 +18,7 @@ db.create: ## Create database
 	@yarn migrate
 
 db.delete: ## Delete database
-	docker compose down && docker volume rm -f sakana-san-api_db && rm -rf ./public/files && rm -rf ./src/migrations/
+	docker compose down && docker volume rm -f sakana-san-api_db && rm -rf ./public/files
 
 db.start: ## Start database
 	docker start sakana-san-db
